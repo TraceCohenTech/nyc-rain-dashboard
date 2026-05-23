@@ -302,13 +302,21 @@ export default function Page() {
           <h1 className="hero-headline" style={{
             fontSize:"clamp(42px,8vw,80px)",
             fontWeight:900,
-            color:"#fff",
             letterSpacing:"-3px",
-            lineHeight:1.00,
+            lineHeight:1.05,
             marginBottom:24,
             maxWidth:760,
           }}>
-            It Always Rains<br/>on Weekends.
+            <span style={{color:"#fff"}}>It Always </span>
+            <span style={{
+              background:"linear-gradient(135deg,#22d3ee 0%,#38bdf8 35%,#3b82f6 70%,#1d4ed8 100%)",
+              WebkitBackgroundClip:"text",
+              WebkitTextFillColor:"transparent",
+              backgroundClip:"text",
+            }}>Rains</span>
+            <br/>
+            <span style={{color:"rgba(255,255,255,0.88)"}}>on </span>
+            <span style={{color:"#fbbf24"}}>Weekends.</span>
           </h1>
 
           <p className="hero-sub" style={{
