@@ -3,9 +3,8 @@
 import { useState, useMemo, useEffect } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ReferenceLine, Cell, ComposedChart, Area,
+  ResponsiveContainer, Cell, ComposedChart, Area,
 } from "recharts";
-import { Droplets, Sun, Cloud, CloudRain } from "lucide-react";
 
 // ─── NWS CENTRAL PARK DAILY DATA 2023–2025 ────────────────────────────────
 // [high°F, low°F, precip_in, sky_cover_0-10]
@@ -85,21 +84,6 @@ const WEEKENDS = [
   { d:"Aug 29–31",  y:2025, rain:0.00, any:false, hvy:false },
 ];
 
-// ─── TOKENS ───────────────────────────────────────────────────────────────
-const BLUE  = "#2563eb";
-const CYAN  = "#0891b2";
-const GREEN = "#059669";
-const AMBER = "#d97706";
-const RED   = "#dc2626";
-const STORM = "#0a1628";
-
-const tt: React.CSSProperties = {
-  background:"#fff",border:"1px solid #e5e7eb",borderRadius:10,
-  fontSize:12,color:"#111827",padding:"8px 12px",boxShadow:"0 4px 16px rgba(0,0,0,0.08)",
-};
-const ax = { tick:{fill:"#9ca3af",fontSize:11}, axisLine:false as const, tickLine:false as const };
-const card: React.CSSProperties = { background:"#fff",borderRadius:16,border:"1px solid #e5e7eb",padding:"22px 26px" };
-
 // ─── DOW AVERAGES ─────────────────────────────────────────────────────────
 function computeDow() {
   const months=["june","july","august"], mi=[5,6,7], yrs=[2023,2024,2025];
@@ -131,7 +115,6 @@ function Rain() {
         @keyframes rd0{0%{transform:translate(0,-30px) skewX(-8deg);opacity:0}8%{opacity:1}90%{opacity:1}100%{transform:translate(18px,105vh) skewX(-8deg);opacity:0}}
         @keyframes rd1{0%{transform:translate(0,-50px) skewX(-10deg);opacity:0}10%{opacity:1}88%{opacity:1}100%{transform:translate(25px,105vh) skewX(-10deg);opacity:0}}
         @keyframes rd2{0%{transform:translate(0,-70px) skewX(-12deg);opacity:0}12%{opacity:1}86%{opacity:1}100%{transform:translate(35px,105vh) skewX(-12deg);opacity:0}}
-        @keyframes lgtnng{0%,100%{opacity:0}20%,80%{opacity:0}45%{opacity:0.12}55%{opacity:0.08}}
       `}</style>
       {drops.map(d=>(
         <div key={d.id} style={{
@@ -148,20 +131,15 @@ function Rain() {
 
 // ─── NYC SKYLINE ──────────────────────────────────────────────────────────
 function Skyline() {
-  // [x, y, w, h] — viewBox 0 0 1400 220, ground at 220
   const b = [
     [0,175,22,45],[24,168,18,52],[44,160,24,60],[70,153,20,67],[92,145,26,75],
     [120,138,22,82],[144,130,28,90],[174,122,20,98],[196,115,30,105],
     [228,108,24,112],[254,100,28,120],[284,92,22,128],[308,85,30,135],
     [340,78,26,142],[368,70,32,150],[402,62,24,158],[428,54,28,166],
-    // ESB setbacks
     [458,80,48,140],[466,55,32,165],[472,35,20,185],[478,15,8,205],
     [474,8,16,212],[480,15,8,205],[486,35,20,185],[492,55,32,165],[500,80,48,140],
-    // right of ESB
     [550,65,26,155],[578,72,30,148],[610,80,24,140],[636,88,28,132],
-    // Chrysler-like setbacks
     [666,95,40,125],[672,78,28,142],[678,62,16,158],[682,48,8,172],[686,62,16,158],[692,78,28,142],[698,95,40,125],
-    // more midtown
     [710,88,30,132],[742,96,26,124],[770,103,32,117],[804,110,28,110],
     [834,117,30,103],[866,124,26,96],[894,130,32,90],
     [928,136,30,84],[960,142,35,78],[997,148,40,72],[1039,154,45,66],
@@ -179,30 +157,26 @@ function Skyline() {
           <stop offset="100%" stopColor="#0d1f42" stopOpacity="0"/>
         </radialGradient>
       </defs>
-      {/* fog at base */}
       <rect x="0" y="100" width="1400" height="120" fill="url(#fogG)"/>
-      {/* buildings */}
       {b.map(([x,y,w,h],i)=>(
         <rect key={i} x={x} y={y} width={w} height={h} fill="url(#bldgG)" rx={1}/>
       ))}
-      {/* tiny lit windows */}
       {b.filter((_,i)=>i%3===0).map(([x,y,w,h],i)=>(
         <rect key={`w${i}`} x={x+(w/2)-1} y={y+(h*0.3)} width={2} height={2} fill="rgba(255,220,100,0.35)" rx={0.5}/>
       ))}
-      {/* ground */}
       <rect x="0" y="215" width="1400" height="5" fill="#030b1a"/>
     </svg>
   );
 }
 
-// ─── TOOLTIP ──────────────────────────────────────────────────────────────
+// ─── CUSTOM TOOLTIP ───────────────────────────────────────────────────────
 function GenTip({active,payload,label}:any){
   if(!active||!payload?.length)return null;
   return(
-    <div style={tt}>
-      <div style={{fontWeight:700,marginBottom:6}}>{label}</div>
+    <div style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:10,fontSize:12,color:"#0f172a",padding:"10px 14px",boxShadow:"0 8px 24px rgba(0,0,0,0.10)"}}>
+      <div style={{fontWeight:700,marginBottom:6,color:"#0f172a"}}>{label}</div>
       {payload.map((p:any)=>(
-        <div key={p.name} style={{color:p.color||"#374151",marginBottom:2}}>
+        <div key={p.name} style={{color:p.color||"#475569",marginBottom:2}}>
           {p.name}: <strong>{p.value}{p.unit||""}</strong>
         </div>
       ))}
@@ -211,24 +185,20 @@ function GenTip({active,payload,label}:any){
 }
 
 // ─── SECTION HEADER ───────────────────────────────────────────────────────
-function SectionHead({overline,title,sub}:{overline:string;title:string;sub:string}) {
+function SectionHead({overline,title,sub,light=false}:{overline:string;title:string;sub:string;light?:boolean}) {
   return (
-    <div style={{marginBottom:28}}>
-      <div style={{fontSize:11,fontWeight:700,color:BLUE,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8}}>{overline}</div>
-      <h2 style={{fontSize:"clamp(22px,4vw,32px)",fontWeight:800,color:"#111827",letterSpacing:-0.5,lineHeight:1.15,marginBottom:10}}>{title}</h2>
-      <p style={{fontSize:14,color:"#6b7280",maxWidth:640,lineHeight:1.65}}>{sub}</p>
-    </div>
-  );
-}
-
-// ─── WEEKEND HEAT TILE ────────────────────────────────────────────────────
-function WkndTile({d,rain,any,hvy}:{d:string;rain:number;any:boolean;hvy:boolean}) {
-  const bg = !any ? "#f9fafb" : hvy ? "#1e40af" : rain>0.25 ? "#3b82f6" : "#93c5fd";
-  const tc = !any ? "#9ca3af" : hvy ? "#fff" : rain>0.25 ? "#fff" : "#1e3a8a";
-  return (
-    <div style={{background:bg,borderRadius:10,padding:"10px 8px",textAlign:"center",border:`1px solid ${!any?"#e5e7eb":hvy?"#1d4ed8":"#bfdbfe"}`,minWidth:0}}>
-      <div style={{fontSize:9,color:!any?"#9ca3af":hvy?"rgba(255,255,255,0.8)":"#1e40af",fontWeight:600,marginBottom:3,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{d}</div>
-      <div style={{fontSize:13,fontWeight:800,color:tc}}>{any?`${rain.toFixed(2)}"`: "Dry"}</div>
+    <div style={{marginBottom:40}}>
+      <div style={{
+        fontSize:11,fontWeight:700,
+        color:light?"rgba(14,165,233,0.9)":"#1d4ed8",
+        letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:10,
+      }}>{overline}</div>
+      <h2 style={{
+        fontSize:"clamp(24px,4vw,40px)",fontWeight:800,
+        color:light?"#fff":"#0f172a",
+        letterSpacing:"-1px",lineHeight:1.12,marginBottom:12,
+      }}>{title}</h2>
+      <p style={{fontSize:15,color:light?"rgba(255,255,255,0.6)":"#475569",maxWidth:640,lineHeight:1.7}}>{sub}</p>
     </div>
   );
 }
@@ -237,10 +207,8 @@ function WkndTile({d,rain,any,hvy}:{d:string;rain:number;any:boolean;hvy:boolean
 export default function Page() {
   const [flash, setFlash] = useState(false);
   const dowAvg = useMemo(computeDow,[]);
-  // Mon-Sun order for display
   const dowDisplay = [...dowAvg.slice(1), dowAvg[0]];
 
-  // Lightning flashes
   useEffect(()=>{
     let t: ReturnType<typeof setTimeout>;
     const strike=()=>{
@@ -253,329 +221,511 @@ export default function Page() {
     return()=>clearTimeout(t);
   },[]);
 
-  const rainyCount = WEEKENDS.filter(w=>w.any).length;   // 27
-  const heavyCount = WEEKENDS.filter(w=>w.hvy).length;   // 10
+  const rainyCount = WEEKENDS.filter(w=>w.any).length;
+
+  // Weekend card color/text helpers
+  const cardStyle = (w:{rain:number;any:boolean;hvy:boolean}) => {
+    if (!w.any) return { bg:"#fff", border:"#e2e8f0", textColor:"#94a3b8", amtColor:"#cbd5e1", accentBar:"#e2e8f0" };
+    if (w.rain >= 0.5) return { bg:"#1e3a8a", border:"#1d4ed8", textColor:"rgba(255,255,255,0.7)", amtColor:"#fff", accentBar:"#60a5fa" };
+    if (w.rain >= 0.25) return { bg:"#dbeafe", border:"#93c5fd", textColor:"#1d4ed8", amtColor:"#1e3a8a", accentBar:"#3b82f6" };
+    return { bg:"#eff6ff", border:"#bfdbfe", textColor:"#3b82f6", amtColor:"#1d4ed8", accentBar:"#93c5fd" };
+  };
+
+  const maxFreq = Math.max(...DOW.map(d=>d.rate));
+  const maxPrecip = Math.max(...DOW.map(d=>d.precip));
 
   return (
     <div style={{minHeight:"100vh",background:"#f8fafc",fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif"}}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
-        html,body{background:#f8fafc;-webkit-font-smoothing:antialiased}
-        ::-webkit-scrollbar{width:5px;height:5px}
+        html,body{background:#f8fafc;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+        ::-webkit-scrollbar{width:5px}
         ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
-        .cl{transition:box-shadow .18s,transform .18s}
-        .cl:hover{box-shadow:0 8px 28px rgba(0,0,0,0.09);transform:translateY(-2px)}
-        .rh:hover{background:#f0f9ff!important}
+        .lift{transition:box-shadow .2s ease,transform .2s ease}
+        .lift:hover{box-shadow:0 12px 40px rgba(15,23,42,0.10);transform:translateY(-3px)}
+        .rh{transition:background .12s}
+        .rh:hover{background:#eff6ff!important}
+        .wknd-card{transition:box-shadow .18s ease,transform .18s ease}
+        .wknd-card:hover{box-shadow:0 8px 24px rgba(15,23,42,0.12);transform:translateY(-2px)}
         @media(max-width:768px){
-          .g4{grid-template-columns:1fr 1fr!important}
-          .g3{grid-template-columns:1fr!important}
-          .g2{grid-template-columns:1fr!important}
-          .gw{grid-template-columns:repeat(3,1fr)!important}
-          .hp{padding:20px 16px 28px!important}
-          .sp{padding:32px 16px!important}
-          .hero-h1{font-size:26px!important;letter-spacing:-0.5px!important}
-          .hero-sub{font-size:13px!important}
-          .chips{gap:6px!important}
-          .chip{min-width:60px!important;padding:8px 10px!important}
-          .chip-v{font-size:15px!important}
-          .chip-l{font-size:9px!important}
-          .kpi-val{font-size:20px!important}
-          .sky-h{height:420px!important}
+          .hero-headline{font-size:clamp(32px,8vw,52px)!important;letter-spacing:-1.5px!important}
+          .hero-sub{font-size:14px!important}
+          .hero-chips{gap:8px!important}
+          .hero-chip{padding:10px 14px!important}
+          .hero-chip-v{font-size:16px!important}
+          .editorial-grid{grid-template-columns:1fr!important}
+          .editorial-divider{display:none!important}
+          .dow-grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
+          .dow-callouts{grid-template-columns:1fr!important}
+          .year-comparison{grid-template-columns:1fr!important}
+          .year-bars-col{display:none!important}
+          .wknd-row{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
+          .charts-grid{grid-template-columns:1fr!important}
+          .sunday-grid{grid-template-columns:1fr!important}
+          .sunday-cards{grid-template-columns:1fr 1fr!important}
+          .pad-section{padding:48px 20px!important}
+          .pad-hero{padding:72px 20px 180px!important}
+          .table-wrap{display:none}
         }
         @media(max-width:480px){
-          .g4{grid-template-columns:1fr!important}
-          .gw{grid-template-columns:repeat(2,1fr)!important}
-          .hero-h1{font-size:22px!important}
+          .dow-grid{grid-template-columns:repeat(2,1fr)!important}
+          .wknd-row{grid-template-columns:repeat(3,1fr)!important}
+          .hero-chips{flex-wrap:wrap!important}
+          .sunday-cards{grid-template-columns:1fr!important}
         }
       `}</style>
 
-      {/* ═══════════════════════════════════════════════════════════
-          HERO
-      ═══════════════════════════════════════════════════════════ */}
-      <div className="sky-h" style={{
-        background:`radial-gradient(ellipse at 30% 0%,#0d2252 0%,${STORM} 55%)`,
-        position:"relative",overflow:"hidden",height:580,
+      {/* ═══════════════════════════════════════════════════════════════
+          1. HERO
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{
+        background:`radial-gradient(ellipse at 30% -20%, #0d2252 0%, #040d1e 60%)`,
+        position:"relative",overflow:"hidden",minHeight:"100vh",
+        display:"flex",flexDirection:"column",justifyContent:"center",
       }}>
-        {/* Lightning overlay */}
-        {flash&&<div style={{position:"absolute",inset:0,background:"rgba(200,225,255,0.12)",pointerEvents:"none",zIndex:3}}/>}
-
-        {/* Animated fog layers */}
-        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 50% 110%,rgba(13,25,60,0.9) 0%,transparent 65%)",pointerEvents:"none",zIndex:2}}/>
-        <div style={{position:"absolute",top:0,left:0,right:0,height:"40%",background:"linear-gradient(180deg,rgba(8,18,42,0.6) 0%,transparent 100%)",pointerEvents:"none",zIndex:2}}/>
-
+        {flash && <div style={{position:"absolute",inset:0,background:"rgba(200,225,255,0.10)",pointerEvents:"none",zIndex:10}}/>}
+        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 50% 110%,rgba(13,25,60,0.85) 0%,transparent 65%)",pointerEvents:"none",zIndex:2}}/>
+        <div style={{position:"absolute",top:0,left:0,right:0,height:"35%",background:"linear-gradient(180deg,rgba(4,13,30,0.7) 0%,transparent 100%)",pointerEvents:"none",zIndex:2}}/>
         <Rain/>
         <Skyline/>
 
-        {/* Content */}
-        <div className="hp" style={{position:"relative",zIndex:4,maxWidth:1300,margin:"0 auto",padding:"52px 32px 36px"}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
-            <div style={{width:7,height:7,borderRadius:"50%",background:"#4ade80",boxShadow:"0 0 8px #4ade80"}}/>
-            <span style={{fontSize:11,color:"rgba(255,255,255,0.75)",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase"}}>
-              NYC Weather Intelligence · Central Park · NWS Data
+        <div className="pad-hero" style={{position:"relative",zIndex:4,maxWidth:1280,margin:"0 auto",width:"100%",padding:"120px 48px 220px"}}>
+          {/* Eyebrow */}
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:"#4ade80",boxShadow:"0 0 10px #4ade80"}}/>
+            <span style={{fontSize:11,color:"rgba(255,255,255,0.6)",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase"}}>
+              NYC Summer Weather · NWS Central Park · 2023–2025
             </span>
           </div>
 
-          <h1 className="hero-h1" style={{fontSize:"clamp(26px,5vw,46px)",fontWeight:900,color:"#fff",letterSpacing:-1.5,lineHeight:1.08,marginBottom:14,maxWidth:700}}>
-            NYC Summers Rain on<br/>Your Weekend Plans.
+          {/* Main headline */}
+          <h1 className="hero-headline" style={{
+            fontSize:"clamp(42px,8vw,80px)",
+            fontWeight:900,
+            color:"#fff",
+            letterSpacing:"-3px",
+            lineHeight:1.00,
+            marginBottom:24,
+            maxWidth:760,
+          }}>
+            It Always Rains<br/>on Weekends.
           </h1>
-          <p className="hero-sub" style={{fontSize:15,color:"rgba(255,255,255,0.68)",marginBottom:28,maxWidth:520,lineHeight:1.65}}>
-            Three summers of Central Park precipitation data show a persistent, measurable bias: your weekends get soaked while Thursdays stay dry. We tracked every raindrop.
+
+          <p className="hero-sub" style={{
+            fontSize:17,
+            color:"rgba(255,255,255,0.55)",
+            marginBottom:40,
+            maxWidth:500,
+            lineHeight:1.7,
+            fontWeight:400,
+          }}>
+            3 NYC summers. 38 weekends tracked. NWS Central Park data. The numbers don't lie — Friday hits hardest, Sunday dumps the most.
           </p>
 
-          <div className="chips" style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          {/* Glass stat chips */}
+          <div className="hero-chips" style={{display:"flex",gap:12,flexWrap:"wrap"}}>
             {[
-              {v:"71%",  l:"WEEKENDS WITH RAIN"},
-              {v:"27/38",l:"SOAKED WEEKENDS"},
-              {v:"43.6%",l:"FRIDAY RAIN RATE"},
-              {v:"0.17″", l:"SUN AVG RAIN/DAY"},
-              {v:"70.8%",l:"SUNDAYS PRECEDED"},
+              {v:"71%",  l:"Weekends with rain"},
+              {v:"27/38",l:"Soaked weekends"},
+              {v:"43.6%",l:"Friday rain rate"},
+              {v:"0.17″",l:"Sunday avg per day"},
             ].map(s=>(
-              <div key={s.l} className="chip" style={{
-                background:"rgba(255,255,255,0.11)",backdropFilter:"blur(10px)",
-                borderRadius:12,padding:"10px 16px",textAlign:"center",minWidth:76,
-                border:"1px solid rgba(255,255,255,0.18)",
+              <div key={s.l} className="hero-chip" style={{
+                background:"rgba(255,255,255,0.08)",
+                backdropFilter:"blur(12px)",
+                WebkitBackdropFilter:"blur(12px)",
+                borderRadius:14,
+                padding:"14px 20px",
+                textAlign:"center",
+                border:"1px solid rgba(255,255,255,0.14)",
               }}>
-                <div className="chip-v" style={{fontSize:18,fontWeight:800,color:"#fff",letterSpacing:-0.5}}>{s.v}</div>
-                <div className="chip-l" style={{fontSize:9,color:"rgba(255,255,255,0.72)",marginTop:3,fontWeight:600,letterSpacing:"0.08em"}}>{s.l}</div>
+                <div className="hero-chip-v" style={{fontSize:22,fontWeight:900,color:"#fff",letterSpacing:"-1px",lineHeight:1}}>{s.v}</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,0.55)",marginTop:5,fontWeight:600,letterSpacing:"0.10em",textTransform:"uppercase"}}>{s.l}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          KPI BAR
-      ═══════════════════════════════════════════════════════════ */}
-      <div style={{background:"#fff",borderBottom:"1px solid #e5e7eb",borderTop:"1px solid #e5e7eb"}}>
-        <div className="g4" style={{maxWidth:1300,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(4,1fr)",borderLeft:"1px solid #f3f4f6"}}>
-          {[
-            {icon:<CloudRain size={18} color={BLUE}/>, val:"27 of 38", sub:"Summer weekends rained on", color:BLUE},
-            {icon:<Droplets size={18} color={CYAN}/>,  val:"0.170″/day", sub:"Sunday average — highest of any day", color:CYAN},
-            {icon:<CloudRain size={18} color={AMBER}/>,val:"43.6%",     sub:"Friday rain frequency — worst day", color:AMBER},
-            {icon:<Cloud size={18} color={RED}/>,      val:"70.8%",     sub:"Rainy Sundays with Fri/Sat warning signs", color:RED},
-          ].map((k,i)=>(
-            <div key={i} style={{padding:"20px 24px",borderRight:"1px solid #f3f4f6",display:"flex",gap:12,alignItems:"flex-start"}}>
-              <div style={{background:`${k.color}10`,borderRadius:10,padding:9,flexShrink:0,marginTop:2}}>{k.icon}</div>
-              <div>
-                <div className="kpi-val" style={{fontSize:22,fontWeight:800,color:"#111827",letterSpacing:-0.5,lineHeight:1}}>{k.val}</div>
-                <div style={{fontSize:12,color:"#6b7280",marginTop:4,lineHeight:1.4}}>{k.sub}</div>
-              </div>
+      {/* ═══════════════════════════════════════════════════════════════
+          2. EDITORIAL STATS
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{background:"#fff",borderBottom:"1px solid #e2e8f0"}}>
+        <div style={{maxWidth:1280,margin:"0 auto"}}>
+          <div className="editorial-grid" style={{display:"grid",gridTemplateColumns:"1fr 1px 1fr 1px 1fr"}}>
+            {/* Stat 1 */}
+            <div style={{padding:"64px 56px 72px"}}>
+              <div style={{fontSize:"clamp(60px,10vw,96px)",fontWeight:900,color:"#1d4ed8",letterSpacing:"-4px",lineHeight:0.9,marginBottom:20}}>71%</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#0f172a",marginBottom:6}}>of summer weekends</div>
+              <div style={{fontSize:15,color:"#475569",lineHeight:1.6}}>had measurable precipitation — tracked over 3 full NYC summers at Central Park.</div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 1 — RAIN BY DAY OF WEEK
-      ═══════════════════════════════════════════════════════════ */}
-      <div className="sp" style={{maxWidth:1300,margin:"0 auto",padding:"56px 32px"}}>
-        <SectionHead
-          overline="Finding 01 — The Weekly Pattern"
-          title="Friday Rains 44% of the Time. Sunday Dumps the Most."
-          sub="Not all rain is equal. Friday leads in frequency — nearly 1 in 2 Fridays are rainy. Sunday has fewer rainy days but the highest total precipitation when it does rain. Together they bookend your weekend with misery."
-        />
-        <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
-          <div className="cl" style={card}>
-            <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>Rain Frequency Rate</div>
-            <div style={{fontSize:12,color:"#6b7280",marginBottom:18}}>% of days with measurable rain, 2023–2025. Friday is the clear outlier at 43.6%.</div>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={DOW} barCategoryGap="28%">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6"/>
-                <XAxis dataKey="day" {...ax}/>
-                <YAxis {...ax} tickFormatter={v=>`${v}%`} domain={[0,52]}/>
-                <Tooltip content={<GenTip/>}/>
-                <ReferenceLine y={32} stroke="#e5e7eb" strokeDasharray="4 4" label={{value:"Avg 32%",position:"insideTopRight",fill:"#9ca3af",fontSize:10}}/>
-                <Bar dataKey="rate" name="Rain frequency" unit="%" radius={[6,6,0,0]}>
-                  {DOW.map(d=><Cell key={d.day} fill={d.day==="Fri"?AMBER:d.wknd?BLUE:CYAN}/>)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            <div style={{display:"flex",gap:14,marginTop:10,fontSize:12}}>
-              {[{c:AMBER,l:"Friday (peak)"},{c:BLUE,l:"Sat/Sun"},{c:CYAN,l:"Mon–Thu"}].map(x=>(
-                <span key={x.l} style={{display:"flex",alignItems:"center",gap:5}}>
-                  <span style={{width:10,height:10,borderRadius:2,background:x.c,display:"inline-block"}}/>{x.l}
-                </span>
-              ))}
+            {/* Divider */}
+            <div className="editorial-divider" style={{background:"#e2e8f0"}}/>
+            {/* Stat 2 */}
+            <div style={{padding:"64px 56px 72px"}}>
+              <div style={{fontSize:"clamp(60px,10vw,96px)",fontWeight:900,color:"#f59e0b",letterSpacing:"-4px",lineHeight:0.9,marginBottom:20}}>43.6%</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#0f172a",marginBottom:6}}>Friday rain rate</div>
+              <div style={{fontSize:15,color:"#475569",lineHeight:1.6}}>Most frequent rain day of the week — nearly 1 in 2 summer Fridays brought rain.</div>
             </div>
-          </div>
-
-          <div className="cl" style={card}>
-            <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>Avg Precip Volume Per Day</div>
-            <div style={{fontSize:12,color:"#6b7280",marginBottom:18}}>Inches per day — Sunday alone averages 0.17″ per summer day. When it goes, it goes hard.</div>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={DOW} barCategoryGap="28%">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6"/>
-                <XAxis dataKey="day" {...ax}/>
-                <YAxis {...ax} tickFormatter={v=>`${v.toFixed(2)}"`} domain={[0,0.22]}/>
-                <Tooltip content={<GenTip/>}/>
-                <Bar dataKey="precip" name="Avg precip" unit="&quot;" radius={[6,6,0,0]}>
-                  {DOW.map(d=><Cell key={d.day} fill={d.day==="Sun"?BLUE:d.wknd?CYAN:"#d1d5db"}/>)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            <div style={{display:"flex",gap:14,marginTop:10,fontSize:12}}>
-              {[{c:BLUE,l:"Sunday (peak volume)"},{c:CYAN,l:"Saturday"},{c:"#d1d5db",l:"Weekdays"}].map(x=>(
-                <span key={x.l} style={{display:"flex",alignItems:"center",gap:5}}>
-                  <span style={{width:10,height:10,borderRadius:2,background:x.c,display:"inline-block"}}/>{x.l}
-                </span>
-              ))}
+            {/* Divider */}
+            <div className="editorial-divider" style={{background:"#e2e8f0"}}/>
+            {/* Stat 3 */}
+            <div style={{padding:"64px 56px 72px"}}>
+              <div style={{fontSize:"clamp(60px,10vw,96px)",fontWeight:900,color:"#0ea5e9",letterSpacing:"-4px",lineHeight:0.9,marginBottom:20}}>0.17″</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#0f172a",marginBottom:6}}>Sunday daily average</div>
+              <div style={{fontSize:15,color:"#475569",lineHeight:1.6}}>Highest precipitation volume of any day. When Sunday rains, it commits.</div>
             </div>
           </div>
         </div>
-
-        {/* Highlighted stat row */}
-        <div className="g3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
-          {[
-            {c:AMBER,stat:"43.6%",title:"Friday Rain Rate",body:"17 of 39 Fridays recorded measurable precipitation. Friday is the most frequently rainy day in NYC summers — more than any weekend day."},
-            {c:BLUE, stat:"0.170″",title:"Sunday Average",body:"Sunday logs the highest precipitation volume per day of any weekday despite fewer rainy days. When Sunday decides to rain, it brings everything."},
-            {c:CYAN, stat:"Thu 0.094″",title:"Thursday: The Escape",body:"Thursday is the driest day — fewest inches per day (0.094″) and reliably low frequency. The data's best day to be outside in NYC summer."},
-          ].map(k=>(
-            <div key={k.stat} style={{borderLeft:`4px solid ${k.c}`,borderRadius:12,background:"#fff",padding:"16px 20px",border:`1px solid #e5e7eb`,borderLeftColor:k.c,borderLeftWidth:4}}>
-              <div style={{fontSize:26,fontWeight:900,color:k.c,letterSpacing:-0.5,marginBottom:4}}>{k.stat}</div>
-              <div style={{fontSize:13,fontWeight:700,color:"#111827",marginBottom:6}}>{k.title}</div>
-              <div style={{fontSize:12,color:"#6b7280",lineHeight:1.65}}>{k.body}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 2 — YEAR BY YEAR
-      ═══════════════════════════════════════════════════════════ */}
-      <div style={{background:"#fff",borderTop:"1px solid #e5e7eb",borderBottom:"1px solid #e5e7eb"}}>
-        <div className="sp" style={{maxWidth:1300,margin:"0 auto",padding:"56px 32px"}}>
+      {/* ═══════════════════════════════════════════════════════════════
+          3. DAY OF WEEK VISUALIZATION
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{background:"#f8fafc",borderBottom:"1px solid #e2e8f0"}}>
+        <div className="pad-section" style={{maxWidth:1280,margin:"0 auto",padding:"80px 48px"}}>
           <SectionHead
-            overline="Finding 02 — Year Over Year"
-            title="2 of 3 Summers: Weekends Got Hammered."
-            sub="In 2023 and 2024, the Fri–Sun block was significantly wetter than Mon–Thu. 2025 reversed — weekdays took the hit. The pattern held for two straight years before flipping."
+            overline="The Weekly Pattern"
+            title="Friday Rains 44% of the Time. Sunday Dumps the Most Rain."
+            sub="Rain frequency and volume tell two different stories. Friday strikes most often. Sunday strikes hardest. Thursday is your only reliable escape."
           />
-          <div className="g2" style={{display:"grid",gridTemplateColumns:"1.3fr 1fr",gap:20,marginBottom:20}}>
-            <div className="cl" style={card}>
-              <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>Fri–Sun vs Mon–Thu Rain Frequency</div>
-              <div style={{fontSize:12,color:"#6b7280",marginBottom:18}}>% of days with rain per block, each summer. 2025 was the outlier year where weekdays reversed the pattern.</div>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={BY_YEAR} barGap={6} barCategoryGap="30%">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6"/>
-                  <XAxis dataKey="year" {...ax}/>
-                  <YAxis {...ax} tickFormatter={v=>`${v}%`} domain={[0,48]}/>
-                  <Tooltip content={<GenTip/>}/>
-                  <Bar dataKey="wdRate" name="Mon–Thu" unit="%" fill={CYAN} radius={[6,6,0,0]}/>
-                  <Bar dataKey="weRate" name="Fri–Sun" unit="%" radius={[6,6,0,0]}>
-                    {BY_YEAR.map(d=><Cell key={d.year} fill={d.worse==="wkdy"?"#d1d5db":BLUE}/>)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
 
-            <div className="g3" style={{display:"grid",gridTemplateColumns:"1fr",gap:14}}>
-              {BY_YEAR.map(y=>(
-                <div key={y.year} className="cl" style={{...card,padding:"16px 20px",borderTop:`3px solid ${y.worse==="wkdy"?GREEN:RED}`}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                    <span style={{fontSize:20,fontWeight:900,color:"#111827"}}>{y.year}</span>
-                    <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,background:y.worse==="wkdy"?`${GREEN}15`:`${RED}15`,color:y.worse==="wkdy"?GREEN:RED}}>
-                      {y.worse==="wkdy"?"Weekdays wetter":"Weekends wetter"}
-                    </span>
+          {/* 7-column custom viz */}
+          <div className="dow-grid" style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:12,marginBottom:40}}>
+            {DOW.map(d=>{
+              const freqH = Math.round((d.rate / maxFreq) * 200);
+              const isFri = d.day === "Fri";
+              const isSun = d.day === "Sun";
+              const isSat = d.day === "Sat";
+              const bgCard = isFri ? "#fffbeb" : (d.wknd ? "#eff6ff" : "#fff");
+              const barColor = isFri ? "#f59e0b" : (d.wknd ? "#1d4ed8" : "#cbd5e1");
+              const labelColor = isFri ? "#92400e" : (d.wknd ? "#1e3a8a" : "#64748b");
+              const rateColor = isFri ? "#d97706" : (d.wknd ? "#1d4ed8" : "#0f172a");
+              const precipDots = Math.round((d.precip / maxPrecip) * 5);
+              return (
+                <div key={d.day} className="lift" style={{
+                  background:bgCard,
+                  borderRadius:16,
+                  padding:"20px 14px 18px",
+                  border:`1px solid ${isFri?"#fde68a":d.wknd?"#bfdbfe":"#e2e8f0"}`,
+                  display:"flex",
+                  flexDirection:"column",
+                  alignItems:"center",
+                  gap:0,
+                  boxShadow: isFri||isSun||isSat ? "0 2px 12px rgba(15,23,42,0.07)" : "none",
+                }}>
+                  {/* Day name */}
+                  <div style={{fontSize:11,fontWeight:700,color:labelColor,letterSpacing:"0.10em",textTransform:"uppercase",marginBottom:16}}>{d.day}</div>
+
+                  {/* Bar track */}
+                  <div style={{width:"100%",height:200,display:"flex",flexDirection:"column",justifyContent:"flex-end",alignItems:"center",marginBottom:10}}>
+                    <div style={{
+                      width:28,
+                      height:freqH,
+                      background:barColor,
+                      borderRadius:"6px 6px 3px 3px",
+                      minHeight:4,
+                      boxShadow: freqH > 120 ? `0 0 16px ${barColor}50` : "none",
+                      transition:"height 0.3s ease",
+                    }}/>
                   </div>
-                  <div style={{display:"flex",gap:10}}>
-                    <div style={{flex:1,background:"#f0f9ff",borderRadius:8,padding:"8px 10px"}}>
-                      <div style={{fontSize:9,color:"#6b7280",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Fri–Sun</div>
-                      <div style={{fontSize:18,fontWeight:800,color:y.worse==="wkdy"?"#9ca3af":BLUE}}>{y.weRate}%</div>
-                    </div>
-                    <div style={{flex:1,background:"#f0fdfa",borderRadius:8,padding:"8px 10px"}}>
-                      <div style={{fontSize:9,color:"#6b7280",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em"}}>Mon–Thu</div>
-                      <div style={{fontSize:18,fontWeight:800,color:y.worse==="wkdy"?CYAN:"#9ca3af"}}>{y.wdRate}%</div>
-                    </div>
+
+                  {/* Rain rate */}
+                  <div style={{fontSize:20,fontWeight:900,color:rateColor,letterSpacing:"-0.5px",lineHeight:1}}>{d.rate}%</div>
+                  <div style={{fontSize:10,color:"#94a3b8",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",marginTop:4,marginBottom:12}}>rain rate</div>
+
+                  {/* Precip dots */}
+                  <div style={{display:"flex",gap:3,marginBottom:6}}>
+                    {Array.from({length:5}).map((_,i)=>(
+                      <div key={i} style={{
+                        width:6,height:6,borderRadius:"50%",
+                        background: i < precipDots ? (isFri?"#f59e0b":d.wknd?"#3b82f6":"#94a3b8") : "#e2e8f0",
+                      }}/>
+                    ))}
                   </div>
+                  <div style={{fontSize:10,color:"#94a3b8",fontWeight:600}}>{d.precip.toFixed(3)}″ avg</div>
                 </div>
-              ))}
+              );
+            })}
+          </div>
+
+          {/* 3 callout cards */}
+          <div className="dow-callouts" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+            {[
+              {
+                color:"#f59e0b", bg:"#fffbeb", border:"#fde68a",
+                stat:"43.6%", label:"Friday Rain Rate",
+                body:"17 of 39 Fridays had rain — the most frequent rain day in NYC summers. Your Friday evening plans have odds worse than a coin flip.",
+              },
+              {
+                color:"#0ea5e9", bg:"#f0f9ff", border:"#bae6fd",
+                stat:"0.170″", label:"Sunday Average Precip",
+                body:"Sunday logs the highest precipitation volume per day despite fewer rain events. When Sunday commits to rain, it goes all in.",
+              },
+              {
+                color:"#10b981", bg:"#f0fdf4", border:"#a7f3d0",
+                stat:"Thu 0.094″", label:"Thursday: The Escape",
+                body:"Thursday is objectively the best day: lowest precip volume (0.094″), reliably low frequency. The data's one guilt-free outdoor day.",
+              },
+            ].map(k=>(
+              <div key={k.stat} className="lift" style={{
+                background:k.bg,
+                borderRadius:16,
+                padding:"24px 28px",
+                border:`1px solid ${k.border}`,
+              }}>
+                <div style={{fontSize:32,fontWeight:900,color:k.color,letterSpacing:"-1px",marginBottom:6}}>{k.stat}</div>
+                <div style={{fontSize:13,fontWeight:700,color:"#0f172a",marginBottom:8}}>{k.label}</div>
+                <div style={{fontSize:13,color:"#475569",lineHeight:1.65}}>{k.body}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          4. 38 WEEKENDS TRACKER
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{background:"#fff",borderBottom:"1px solid #e2e8f0"}}>
+        <div className="pad-section" style={{maxWidth:1280,margin:"0 auto",padding:"80px 48px"}}>
+          <SectionHead
+            overline="The Full Ledger"
+            title={`27 of 38 Summer Weekends Got Rained On.`}
+            sub="Every weekend from June through August, 2023 through 2025. Color intensity maps to rain volume. The heavy ones leave a mark."
+          />
+
+          {[2023,2024,2025].map(yr=>{
+            const wks = WEEKENDS.filter(w=>w.y===yr);
+            const cnt = wks.filter(w=>w.any).length;
+            const isWetter = BY_YEAR.find(b=>b.year===String(yr))?.worse === "wknd";
+            return(
+              <div key={yr} style={{marginBottom:40}}>
+                {/* Year header */}
+                <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:16}}>
+                  <span style={{fontSize:28,fontWeight:900,color:"#0f172a",letterSpacing:"-1px"}}>{yr}</span>
+                  <span style={{fontSize:13,color:"#94a3b8",fontWeight:600}}>{cnt} of {wks.length} weekends with rain</span>
+                  <span style={{
+                    fontSize:11,fontWeight:700,
+                    padding:"4px 12px",borderRadius:20,
+                    background: isWetter ? "#fee2e2" : "#dcfce7",
+                    color: isWetter ? "#dc2626" : "#16a34a",
+                  }}>
+                    {isWetter ? "Wetter year" : "Drier year"}
+                  </span>
+                </div>
+
+                {/* Weekend cards row */}
+                <div className="wknd-row" style={{display:"grid",gridTemplateColumns:`repeat(${wks.length},1fr)`,gap:8}}>
+                  {wks.map(w=>{
+                    const cs = cardStyle(w);
+                    return (
+                      <div key={w.d} className="wknd-card" style={{
+                        background:cs.bg,
+                        border:`1px solid ${cs.border}`,
+                        borderLeft:`4px solid ${cs.accentBar}`,
+                        borderRadius:12,
+                        padding:"12px 10px 14px",
+                        display:"flex",
+                        flexDirection:"column",
+                        alignItems:"center",
+                        gap:0,
+                        minWidth:0,
+                        cursor:"default",
+                      }}>
+                        {/* Date */}
+                        <div style={{fontSize:9,fontWeight:700,color:cs.textColor,textAlign:"center",lineHeight:1.3,marginBottom:10,letterSpacing:"0.02em",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",width:"100%",textTransform:"uppercase"}}>{w.d}</div>
+
+                        {/* Icon */}
+                        <div style={{fontSize:18,lineHeight:1,marginBottom:8}}>
+                          {!w.any ? (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                              <circle cx="12" cy="12" r="5" fill="#fbbf24"/>
+                              <line x1="12" y1="2" x2="12" y2="5" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                              <line x1="12" y1="19" x2="12" y2="22" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                              <line x1="2" y1="12" x2="5" y2="12" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                              <line x1="19" y1="12" x2="22" y2="12" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                              <line x1="4.93" y1="4.93" x2="7.05" y2="7.05" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                              <line x1="16.95" y1="16.95" x2="19.07" y2="19.07" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                              <line x1="4.93" y1="19.07" x2="7.05" y2="16.95" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                              <line x1="16.95" y1="7.05" x2="19.07" y2="4.93" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                          ) : (
+                            <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+                              <path d="M8 0C8 0 0 8 0 13a8 8 0 0016 0C16 8 8 0 8 0z" fill={w.hvy ? "#93c5fd" : w.rain>=0.25 ? "#60a5fa" : "#bfdbfe"}/>
+                            </svg>
+                          )}
+                        </div>
+
+                        {/* Amount */}
+                        <div style={{fontSize:13,fontWeight:900,color:cs.amtColor,letterSpacing:"-0.3px",lineHeight:1}}>
+                          {w.any ? `${w.rain.toFixed(2)}″` : "Dry"}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Legend */}
+          <div style={{display:"flex",gap:24,marginTop:8,flexWrap:"wrap",alignItems:"center"}}>
+            <span style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.10em"}}>Legend</span>
+            {[
+              {bg:"#fff",border:"#e2e8f0",accent:"#e2e8f0",label:"Dry"},
+              {bg:"#eff6ff",border:"#bfdbfe",accent:"#93c5fd",label:"Light < 0.25″"},
+              {bg:"#dbeafe",border:"#93c5fd",accent:"#3b82f6",label:"Moderate 0.25–0.49″"},
+              {bg:"#1e3a8a",border:"#1d4ed8",accent:"#60a5fa",label:"Heavy ≥ 0.50″"},
+            ].map(x=>(
+              <span key={x.label} style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{
+                  width:16,height:16,borderRadius:4,
+                  background:x.bg,
+                  border:`1px solid ${x.border}`,
+                  borderLeft:`3px solid ${x.accent}`,
+                  display:"inline-block",flexShrink:0,
+                }}/>
+                <span style={{fontSize:12,color:"#475569",fontWeight:500}}>{x.label}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          5. YEAR BY YEAR
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{background:"#040d1e",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+        <div className="pad-section" style={{maxWidth:1280,margin:"0 auto",padding:"80px 48px"}}>
+          <SectionHead
+            overline="Year Over Year"
+            title="2 of 3 Summers: Weekends Got Hammered."
+            sub="2023 and 2024 showed a clear Fri–Sun bias. 2025 flipped the script — weekdays took the punishment. But two out of three summers, plan accordingly."
+            light
+          />
+
+          <div className="year-comparison" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:40}}>
+            {/* Year bars */}
+            <div style={{display:"flex",flexDirection:"column",gap:28}}>
+              {BY_YEAR.map(y=>{
+                const isFlip = y.worse === "wkdy";
+                const weW = Math.round((y.weRate / 50) * 100);
+                const wdW = Math.round((y.wdRate / 50) * 100);
+                return (
+                  <div key={y.year}>
+                    <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:14}}>
+                      <span style={{fontSize:24,fontWeight:900,color:"#fff",letterSpacing:"-1px",minWidth:52}}>
+                        {y.year}
+                      </span>
+                      <span style={{
+                        fontSize:10,fontWeight:700,
+                        padding:"3px 10px",borderRadius:20,
+                        background: isFlip ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)",
+                        color: isFlip ? "#4ade80" : "#f87171",
+                        letterSpacing:"0.08em",textTransform:"uppercase",
+                      }}>
+                        {isFlip ? "Weekdays wetter" : "Weekends wetter"}
+                      </span>
+                    </div>
+
+                    {/* Fri–Sun bar */}
+                    <div style={{marginBottom:10}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                        <span style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.5)",letterSpacing:"0.08em",textTransform:"uppercase"}}>Fri–Sun</span>
+                        <span style={{fontSize:16,fontWeight:900,color: isFlip ? "rgba(255,255,255,0.35)" : "#60a5fa"}}>{y.weRate}%</span>
+                      </div>
+                      <div style={{height:10,background:"rgba(255,255,255,0.06)",borderRadius:6,overflow:"hidden"}}>
+                        <div style={{
+                          height:"100%",
+                          width:`${weW}%`,
+                          background: isFlip ? "rgba(255,255,255,0.15)" : "linear-gradient(90deg,#1d4ed8,#3b82f6)",
+                          borderRadius:6,
+                          transition:"width 0.6s ease",
+                        }}/>
+                      </div>
+                    </div>
+
+                    {/* Mon–Thu bar */}
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                        <span style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.5)",letterSpacing:"0.08em",textTransform:"uppercase"}}>Mon–Thu</span>
+                        <span style={{fontSize:16,fontWeight:900,color: isFlip ? "#4ade80" : "rgba(255,255,255,0.35)"}}>{y.wdRate}%</span>
+                      </div>
+                      <div style={{height:10,background:"rgba(255,255,255,0.06)",borderRadius:6,overflow:"hidden"}}>
+                        <div style={{
+                          height:"100%",
+                          width:`${wdW}%`,
+                          background: isFlip ? "linear-gradient(90deg,#059669,#10b981)" : "rgba(255,255,255,0.15)",
+                          borderRadius:6,
+                          transition:"width 0.6s ease",
+                        }}/>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Recharts version for desktop */}
+            <div className="year-bars-col" style={{display:"flex",flexDirection:"column",justifyContent:"center"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.35)",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:16}}>Rain frequency %</div>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={BY_YEAR} barGap={6} barCategoryGap="32%">
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false}/>
+                  <XAxis dataKey="year" tick={{fill:"rgba(255,255,255,0.4)",fontSize:12}} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{fill:"rgba(255,255,255,0.3)",fontSize:11}} axisLine={false} tickLine={false} tickFormatter={v=>`${v}%`} domain={[0,48]}/>
+                  <Tooltip content={<GenTip/>}/>
+                  <Bar dataKey="wdRate" name="Mon–Thu" unit="%" fill="rgba(255,255,255,0.15)" radius={[4,4,0,0]}/>
+                  <Bar dataKey="weRate" name="Fri–Sun" unit="%" radius={[4,4,0,0]}>
+                    {BY_YEAR.map(d=><Cell key={d.year} fill={d.worse==="wkdy"?"rgba(255,255,255,0.12)":"#3b82f6"}/>)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 3 — WEEKEND TRACKER
-      ═══════════════════════════════════════════════════════════ */}
-      <div className="sp" style={{maxWidth:1300,margin:"0 auto",padding:"56px 32px"}}>
-        <SectionHead
-          overline="Finding 03 — The Full Ledger"
-          title={`${rainyCount} of 38 Summer Weekends Got Rained On.`}
-          sub={`That's ${Math.round(rainyCount/38*100)}% of all weekends tracked across three summers. ${heavyCount} were outright soaked (over half an inch). Color intensity = rain amount.`}
-        />
-
-        {[2023,2024,2025].map(yr=>{
-          const wks=WEEKENDS.filter(w=>w.y===yr);
-          const cnt=wks.filter(w=>w.any).length;
-          return(
-            <div key={yr} style={{marginBottom:20}}>
-              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
-                <span style={{fontSize:15,fontWeight:800,color:"#111827"}}>Summer {yr}</span>
-                <span style={{fontSize:11,fontWeight:600,color:"#6b7280"}}>{cnt} of {wks.length} weekends rained ({Math.round(cnt/wks.length*100)}%)</span>
-                <span style={{fontSize:11,fontWeight:700,padding:"2px 10px",borderRadius:20,background:yr===2025?`${GREEN}15`:`${RED}15`,color:yr===2025?GREEN:RED}}>
-                  {yr===2025?"Drier year":"Wetter year"}
-                </span>
-              </div>
-              <div className="gw" style={{display:"grid",gridTemplateColumns:`repeat(${wks.length},1fr)`,gap:6}}>
-                {wks.map(w=><WkndTile key={w.d} {...w}/>)}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Legend */}
-        <div style={{display:"flex",gap:20,marginTop:12,fontSize:12,flexWrap:"wrap",alignItems:"center"}}>
-          {[
-            {c:"#f9fafb",border:"#e5e7eb",l:"Dry"},
-            {c:"#93c5fd",border:"#bfdbfe",l:"Light (< 0.25″)"},
-            {c:"#3b82f6",border:"#3b82f6",l:"Moderate (0.25–0.50″)"},
-            {c:"#1e40af",border:"#1d4ed8",l:"Heavy (≥ 0.50″)"},
-          ].map(x=>(
-            <span key={x.l} style={{display:"flex",alignItems:"center",gap:6}}>
-              <span style={{width:12,height:12,borderRadius:3,background:x.c,border:`1px solid ${x.border}`,display:"inline-block"}}/>
-              <span style={{color:"#6b7280"}}>{x.l}</span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 4 — TEMPERATURE & CLOUDS
-      ═══════════════════════════════════════════════════════════ */}
-      <div style={{background:"#fff",borderTop:"1px solid #e5e7eb",borderBottom:"1px solid #e5e7eb"}}>
-        <div className="sp" style={{maxWidth:1300,margin:"0 auto",padding:"56px 32px"}}>
+      {/* ═══════════════════════════════════════════════════════════════
+          6. TEMPERATURE & CLOUDS
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{background:"#f8fafc",borderBottom:"1px solid #e2e8f0"}}>
+        <div className="pad-section" style={{maxWidth:1280,margin:"0 auto",padding:"80px 48px"}}>
           <SectionHead
-            overline="Finding 04 — Full Atmospheric Picture"
-            title="Rain Suppresses Weekend Temps. Clouds Confirm It."
-            sub="NWS sky cover and temperature records show weekends running cloudier and cooler — consistent with rain suppressing daytime highs. Thursday stays clearest and warmest."
+            overline="Atmospheric Picture"
+            title="Rain Cools Weekend Temps. Clouds Confirm It."
+            sub="NWS sky cover and temperature records show weekends running cloudier and cooler — consistent with precipitation suppressing daytime highs. Thursday stays clearest and warmest."
           />
-          <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-            <div className="cl" style={card}>
-              <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>Avg Cloud Cover (NWS 0–10 Scale)</div>
-              <div style={{fontSize:12,color:"#6b7280",marginBottom:18}}>Higher = more overcast. Friday/Saturday/Sunday cluster above the midweek baseline.</div>
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={dowDisplay} barCategoryGap="28%">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6"/>
-                  <XAxis dataKey="day" {...ax}/>
-                  <YAxis {...ax} domain={[0,7]}/>
+          <div className="charts-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+            {/* Cloud cover */}
+            <div className="lift" style={{background:"#fff",borderRadius:20,border:"1px solid #e2e8f0",padding:"28px 28px 20px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:4}}>Avg Cloud Cover — NWS 0–10 Scale</div>
+              <div style={{fontSize:13,color:"#475569",marginBottom:20,lineHeight:1.5}}>Higher = more overcast. Weekends cluster above midweek baseline.</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={dowDisplay} barCategoryGap="30%">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                  <XAxis dataKey="day" tick={{fill:"#94a3b8",fontSize:11}} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{fill:"#94a3b8",fontSize:11}} axisLine={false} tickLine={false} domain={[0,7]}/>
                   <Tooltip content={<GenTip/>}/>
-                  <Bar dataKey="avgSky" name="Cloud cover" radius={[6,6,0,0]}>
-                    {dowDisplay.map(d=><Cell key={d.day} fill={d.wknd?BLUE:"#d1d5db"}/>)}
+                  <Bar dataKey="avgSky" name="Cloud cover" radius={[5,5,0,0]}>
+                    {dowDisplay.map(d=><Cell key={d.day} fill={d.wknd?"#1d4ed8":"#cbd5e1"}/>)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="cl" style={card}>
-              <div style={{fontSize:11,fontWeight:700,color:"#9ca3af",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>Avg High / Low Temp by Day (°F)</div>
-              <div style={{fontSize:12,color:"#6b7280",marginBottom:18}}>Rain on weekends cools Saturday/Sunday highs below the midweek peak. Thursday and Friday run warmest before the weekend drop.</div>
-              <ResponsiveContainer width="100%" height={240}>
+            {/* Temperature */}
+            <div className="lift" style={{background:"#fff",borderRadius:20,border:"1px solid #e2e8f0",padding:"28px 28px 20px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:4}}>Avg High / Low Temp by Day (°F)</div>
+              <div style={{fontSize:13,color:"#475569",marginBottom:20,lineHeight:1.5}}>Rain suppresses weekend highs below midweek peaks. Thursday runs warmest before the drop.</div>
+              <ResponsiveContainer width="100%" height={220}>
                 <ComposedChart data={dowDisplay}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6"/>
-                  <XAxis dataKey="day" {...ax}/>
-                  <YAxis {...ax} tickFormatter={v=>`${v}°`} domain={[64,92]}/>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false}/>
+                  <XAxis dataKey="day" tick={{fill:"#94a3b8",fontSize:11}} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{fill:"#94a3b8",fontSize:11}} axisLine={false} tickLine={false} tickFormatter={v=>`${v}°`} domain={[64,92]}/>
                   <Tooltip content={<GenTip/>}/>
-                  <Area type="monotone" dataKey="avgHi" name="Avg High" unit="°F" stroke={AMBER} fill={`${AMBER}12`} strokeWidth={2.5} dot={{r:4,fill:AMBER,strokeWidth:0}}/>
-                  <Area type="monotone" dataKey="avgLo" name="Avg Low" unit="°F" stroke={CYAN} fill={`${CYAN}10`} strokeWidth={2.5} dot={{r:4,fill:CYAN,strokeWidth:0}}/>
+                  <Area type="monotone" dataKey="avgHi" name="Avg High" unit="°F" stroke="#f59e0b" fill="#fef3c720" strokeWidth={2.5} dot={{r:4,fill:"#f59e0b",strokeWidth:0}}/>
+                  <Area type="monotone" dataKey="avgLo" name="Avg Low" unit="°F" stroke="#0ea5e9" fill="#e0f2fe20" strokeWidth={2.5} dot={{r:4,fill:"#0ea5e9",strokeWidth:0}}/>
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -583,35 +733,46 @@ export default function Page() {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 5 — THE SUNDAY EFFECT (FULL-WIDTH CALLOUT)
-      ═══════════════════════════════════════════════════════════ */}
-      <div style={{background:`linear-gradient(135deg,${STORM} 0%,#0d2252 50%,#1a3a8a 100%)`,position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle,rgba(255,255,255,0.025) 1px,transparent 1px)",backgroundSize:"28px 28px",pointerEvents:"none"}}/>
-        <div className="sp" style={{maxWidth:1300,margin:"0 auto",padding:"64px 32px",position:"relative"}}>
-          <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:48,alignItems:"center"}}>
+      {/* ═══════════════════════════════════════════════════════════════
+          7. THE SUNDAY EFFECT
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{background:"linear-gradient(135deg,#040d1e 0%,#0d2252 50%,#1e3a8a 100%)",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle,rgba(255,255,255,0.02) 1px,transparent 1px)",backgroundSize:"32px 32px",pointerEvents:"none"}}/>
+        <div className="pad-section" style={{maxWidth:1280,margin:"0 auto",padding:"80px 48px",position:"relative"}}>
+          <div className="sunday-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:64,alignItems:"center"}}>
             <div>
-              <div style={{fontSize:11,fontWeight:700,color:"rgba(74,222,128,0.9)",letterSpacing:"0.18em",textTransform:"uppercase",marginBottom:12}}>The Sunday Signal</div>
-              <div style={{fontSize:"clamp(18px,4vw,28px)",fontWeight:900,color:"#fff",lineHeight:1.15,marginBottom:16,letterSpacing:-0.5}}>
-                70.8% of Rainy Sundays Were Preceded by a Gross Friday or Saturday.
+              <div style={{fontSize:11,fontWeight:700,color:"rgba(74,222,128,0.8)",letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:16}}>The Sunday Signal</div>
+              <div style={{
+                fontSize:"clamp(60px,10vw,96px)",
+                fontWeight:900,
+                color:"#10b981",
+                letterSpacing:"-4px",
+                lineHeight:0.9,
+                marginBottom:24,
+              }}>70.8%</div>
+              <div style={{fontSize:"clamp(18px,3vw,26px)",fontWeight:800,color:"#fff",lineHeight:1.2,marginBottom:16,letterSpacing:"-0.5px"}}>
+                of rainy Sundays were<br/>preceded by a wet Friday<br/>or Saturday.
               </div>
-              <p style={{fontSize:14,color:"rgba(255,255,255,0.65)",lineHeight:1.7,marginBottom:20}}>
-                Across 2020–2025, 17 of 24 rainy Sundays had haze, mist, fog, or actual rain on the Friday or Saturday before them. The weekend doesn't just get rained on — it telegraphs the rain coming.
-              </p>
-              <p style={{fontSize:14,color:"rgba(255,255,255,0.55)",lineHeight:1.7}}>
-                The mechanism: Mon–Fri commuter aerosols build up during the week, peak as cloud condensation nuclei by Thursday/Friday, bloom into overcast Saturday, and release as rain Sunday. Your tailpipes are doing this.
+              <p style={{fontSize:15,color:"rgba(255,255,255,0.55)",lineHeight:1.75}}>
+                17 of 24 rainy Sundays had measurable rain or heavy overcast on the Friday or Saturday before them. The weekend telegraphs its own misery. If Friday looks gross, cancel your Sunday plans now.
               </p>
             </div>
-            <div className="g2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <div className="sunday-cards" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
               {[
-                {v:"70.8%",l:"Rainy Sundays with Fri/Sat warning",c:"#4ade80"},
-                {v:"17/24",l:"Rainy Sundays with gross lead-up",c:"#60a5fa"},
-                {v:"0.170″",l:"Sunday avg precip — highest any day",c:"#fbbf24"},
-                {v:"27.5%",l:"Sunday rain frequency (low count, high volume)",c:"#f87171"},
+                {v:"70.8%",  l:"Rainy Sundays with Fri/Sat warning",c:"#4ade80"},
+                {v:"17/24",  l:"Rainy Sundays with gross lead-up",  c:"#60a5fa"},
+                {v:"0.170″", l:"Sunday avg precip — highest any day",c:"#fbbf24"},
+                {v:"27.5%",  l:"Sunday frequency — low count, high volume",c:"#f87171"},
               ].map(s=>(
-                <div key={s.l} style={{background:"rgba(255,255,255,0.07)",borderRadius:14,padding:"18px 16px",border:"1px solid rgba(255,255,255,0.12)"}}>
-                  <div style={{fontSize:28,fontWeight:900,color:s.c,letterSpacing:-1,lineHeight:1,marginBottom:6}}>{s.v}</div>
-                  <div style={{fontSize:11,color:"rgba(255,255,255,0.6)",lineHeight:1.4}}>{s.l}</div>
+                <div key={s.l} style={{
+                  background:"rgba(255,255,255,0.06)",
+                  borderRadius:16,
+                  padding:"22px 18px",
+                  border:"1px solid rgba(255,255,255,0.10)",
+                  backdropFilter:"blur(8px)",
+                }}>
+                  <div style={{fontSize:32,fontWeight:900,color:s.c,letterSpacing:"-1px",lineHeight:1,marginBottom:8}}>{s.v}</div>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,0.5)",lineHeight:1.5}}>{s.l}</div>
                 </div>
               ))}
             </div>
@@ -619,68 +780,113 @@ export default function Page() {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          DATA TABLE
-      ═══════════════════════════════════════════════════════════ */}
-      <div className="sp" style={{maxWidth:1300,margin:"0 auto",padding:"56px 32px"}}>
-        <SectionHead
-          overline="The Full Data"
-          title="Every Day of the Week, by the Numbers."
-          sub="NWS Central Park Station (USW00094728) · June–August 2023–2025 · 39–40 observations per day of week."
-        />
-        <div style={{borderRadius:16,border:"1px solid #e5e7eb",background:"#fff",overflow:"hidden"}}>
-          <div style={{overflowX:"auto"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",minWidth:560}}>
-              <thead>
-                <tr style={{background:"#fafafa"}}>
-                  {["Day","Rainy Days","Total Days","Rain Rate","Avg Precip/Day","Type"].map(h=>(
-                    <th key={h} style={{padding:"11px 20px",textAlign:"left",fontSize:11,fontWeight:700,color:"#9ca3af",textTransform:"uppercase",letterSpacing:"0.06em",borderBottom:"1px solid #f3f4f6",whiteSpace:"nowrap"}}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {DOW.map((d,i)=>(
-                  <tr key={d.day} className="rh" style={{background:d.day==="Fri"||d.wknd?"#f0f9ff":i%2===0?"#fff":"#fafafa",cursor:"pointer",transition:"background 0.1s"}}>
-                    <td style={{padding:"12px 20px",fontSize:14,fontWeight:700,color:"#111827"}}>{d.day}</td>
-                    <td style={{padding:"12px 20px",fontSize:13,color:"#374151"}}>{d.rainy}</td>
-                    <td style={{padding:"12px 20px",fontSize:13,color:"#374151"}}>{d.total}</td>
-                    <td style={{padding:"12px 20px"}}>
-                      <span style={{fontSize:13,fontWeight:700,color:d.day==="Fri"?AMBER:d.wknd?BLUE:"#374151"}}>{d.rate}%</span>
-                    </td>
-                    <td style={{padding:"12px 20px"}}>
-                      <span style={{fontSize:13,fontWeight:700,color:d.day==="Sun"?BLUE:d.day==="Thu"?GREEN:"#374151"}}>{d.precip.toFixed(3)}″</span>
-                    </td>
-                    <td style={{padding:"12px 20px"}}>
-                      <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,
-                        background:d.day==="Fri"?`${AMBER}15`:d.wknd?`${BLUE}15`:`${CYAN}15`,
-                        color:d.day==="Fri"?AMBER:d.wknd?BLUE:CYAN}}>
-                        {d.day==="Fri"?"Peak freq":d.wknd?"Weekend":"Weekday"}
-                      </span>
-                    </td>
+      {/* ═══════════════════════════════════════════════════════════════
+          8. DATA TABLE
+      ═══════════════════════════════════════════════════════════════ */}
+      <div style={{background:"#fff",borderBottom:"1px solid #e2e8f0"}}>
+        <div className="pad-section" style={{maxWidth:1280,margin:"0 auto",padding:"80px 48px"}}>
+          <SectionHead
+            overline="The Full Data"
+            title="Every Day of the Week, by the Numbers."
+            sub="NWS Central Park Station (USW00094728) · June–August 2023–2025 · 39–40 observations per day of week."
+          />
+          <div className="table-wrap" style={{borderRadius:16,border:"1px solid #e2e8f0",overflow:"hidden"}}>
+            <div style={{overflowX:"auto"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",minWidth:560}}>
+                <thead>
+                  <tr style={{background:"#f8fafc"}}>
+                    {["Day","Rain Days","Total Days","Rain Rate","Avg Precip / Day","Type"].map(h=>(
+                      <th key={h} style={{padding:"14px 24px",textAlign:"left",fontSize:11,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.10em",borderBottom:"1px solid #e2e8f0",whiteSpace:"nowrap"}}>{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {DOW.map((d,i)=>(
+                    <tr key={d.day} className="rh" style={{background:d.day==="Fri"?"#fffbeb":d.wknd?"#eff6ff":i%2===0?"#fff":"#fafafa",borderBottom:"1px solid #f1f5f9"}}>
+                      <td style={{padding:"14px 24px",fontSize:15,fontWeight:800,color:"#0f172a"}}>{d.day}</td>
+                      <td style={{padding:"14px 24px",fontSize:14,color:"#475569"}}>{d.rainy}</td>
+                      <td style={{padding:"14px 24px",fontSize:14,color:"#475569"}}>{d.total}</td>
+                      <td style={{padding:"14px 24px"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:10}}>
+                          <div style={{width:60,height:6,background:"#f1f5f9",borderRadius:3,overflow:"hidden"}}>
+                            <div style={{width:`${(d.rate/50)*100}%`,height:"100%",background:d.day==="Fri"?"#f59e0b":d.wknd?"#1d4ed8":"#94a3b8",borderRadius:3}}/>
+                          </div>
+                          <span style={{fontSize:14,fontWeight:800,color:d.day==="Fri"?"#d97706":d.wknd?"#1d4ed8":"#0f172a"}}>{d.rate}%</span>
+                        </div>
+                      </td>
+                      <td style={{padding:"14px 24px"}}>
+                        <span style={{fontSize:14,fontWeight:800,color:d.day==="Sun"?"#0ea5e9":d.day==="Thu"?"#10b981":"#0f172a"}}>{d.precip.toFixed(3)}″</span>
+                      </td>
+                      <td style={{padding:"14px 24px"}}>
+                        <span style={{
+                          fontSize:11,fontWeight:700,
+                          padding:"4px 12px",borderRadius:20,
+                          background:d.day==="Fri"?"#fef3c7":d.wknd?"#eff6ff":"#f1f5f9",
+                          color:d.day==="Fri"?"#d97706":d.wknd?"#1d4ed8":"#64748b",
+                        }}>
+                          {d.day==="Fri"?"Peak freq":d.wknd?"Weekend":"Weekday"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
-        {/* Methodology callout */}
-        <div style={{marginTop:20,background:"#fffbeb",borderRadius:12,border:"1px solid #fde68a",padding:"14px 20px",display:"flex",gap:10,alignItems:"flex-start"}}>
-          <Sun size={15} color={AMBER} style={{flexShrink:0,marginTop:2}}/>
-          <span style={{fontSize:12,color:"#92400e"}}>
-            <strong>Sources:</strong> NWS Central Park CF6 daily climate reports (2023–2025) · WeatherSpark historical observed weather (2020–2025 for Sunday lead-up analysis) · Summer defined as June–August · Weekend block defined as Friday–Sunday for precip comparisons, Saturday–Sunday for weekend tracker.
-          </span>
+          {/* Source callout */}
+          <div style={{
+            marginTop:24,
+            background:"#fffbeb",
+            borderRadius:12,
+            border:"1px solid #fde68a",
+            padding:"16px 20px",
+            display:"flex",
+            gap:12,
+            alignItems:"flex-start",
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{flexShrink:0,marginTop:2}}>
+              <circle cx="12" cy="12" r="10" stroke="#f59e0b" strokeWidth="2"/>
+              <path d="M12 8v4M12 16h.01" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span style={{fontSize:13,color:"#92400e",lineHeight:1.6}}>
+              <strong>Sources:</strong> NWS Central Park CF6 daily climate reports (2023–2025) · WeatherSpark historical observed weather (2020–2025 for Sunday lead-up analysis) · Summer = June–August · Weekend block = Friday–Sunday for precip comparisons, Saturday–Sunday for weekend tracker.
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          FOOTER
-      ═══════════════════════════════════════════════════════════ */}
-      <footer style={{background:"#fff",borderTop:"1px solid #e5e7eb",padding:"20px 32px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
-        <div style={{fontSize:12,color:"#9ca3af"}}>NYC Summer Rain Report · NWS Central Park · 2020–2025</div>
-        <div style={{display:"flex",gap:20,fontSize:12}}>
-          <a href="https://x.com/Trace_Cohen" target="_blank" rel="noopener noreferrer" style={{color:"#6b7280",textDecoration:"none",fontWeight:600}}>𝕏 @Trace_Cohen</a>
-          <a href="mailto:t@nyvp.com" style={{color:"#6b7280",textDecoration:"none",fontWeight:600}}>t@nyvp.com</a>
+      {/* ═══════════════════════════════════════════════════════════════
+          9. FOOTER
+      ═══════════════════════════════════════════════════════════════ */}
+      <footer style={{
+        background:"#fff",
+        borderTop:"1px solid #e2e8f0",
+        padding:"24px 48px",
+        display:"flex",
+        justifyContent:"space-between",
+        alignItems:"center",
+        flexWrap:"wrap",
+        gap:12,
+      }}>
+        <div style={{fontSize:13,color:"#94a3b8",fontWeight:500}}>
+          NYC Summer Rain Report · NWS Central Park · 2023–2025
+        </div>
+        <div style={{display:"flex",gap:24,alignItems:"center"}}>
+          <a
+            href="https://x.com/Trace_Cohen"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{fontSize:13,color:"#475569",textDecoration:"none",fontWeight:600,letterSpacing:"-0.2px"}}
+          >
+            𝕏 @Trace_Cohen
+          </a>
+          <a
+            href="mailto:t@nyvp.com"
+            style={{fontSize:13,color:"#475569",textDecoration:"none",fontWeight:600}}
+          >
+            t@nyvp.com
+          </a>
         </div>
       </footer>
     </div>
